@@ -204,16 +204,30 @@ function Resume() {
     ? `https://docs.google.com/document/d/${RESUME_DOC_ID}/preview`
     : `${RESUME_PDF}#view=FitH`;
   const openHref = RESUME_DOC_ID ? `https://docs.google.com/document/d/${RESUME_DOC_ID}/edit` : RESUME_PDF;
+  const downloadHref = RESUME_DOC_ID
+    ? `https://docs.google.com/document/d/${RESUME_DOC_ID}/export?format=pdf`
+    : RESUME_PDF;
   return (
     <div>
       <iframe title="Matthew Castello's resume" src={src} className="resume-frame w-full h-[75vh] bg-white sheet" />
-      <p className="mt-3 text-sm c-muted">
-        Not loading?{' '}
-        <a href={openHref} target="_blank" rel="noreferrer" className="underline underline-offset-4">
-          Open it in its own tab
+      <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
+        <a
+          href={downloadHref}
+          download={RESUME_DOC_ID ? undefined : 'Matthew_Castello_Resume.pdf'}
+          target={RESUME_DOC_ID ? '_blank' : undefined}
+          rel={RESUME_DOC_ID ? 'noreferrer' : undefined}
+          className="underline underline-offset-4 decoration-pen font-display"
+        >
+          Download resume (PDF)
         </a>
-        .
-      </p>
+        <span className="c-muted">
+          Not loading?{' '}
+          <a href={openHref} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+            Open it in its own tab
+          </a>
+          .
+        </span>
+      </div>
     </div>
   );
 }
@@ -352,13 +366,30 @@ function Sketch({ tool, color, page, store, version }) {
 }
 
 function Toolbar({ tool, setTool, color, setColor, onUndo, onClear }) {
+  const [collapsed, setCollapsed] = useState(false);
   const usesColor = ['pen', 'hl', 'fill'].includes(tool.kind);
   const pickColor = (id) => {
     setColor(id);
     if (!usesColor) setTool(TOOLS[1]);
   };
   return (
-    <div className="portfolio-toolbar safe-bottom fixed bottom-4 left-1/2 -translate-x-1/2 z-50 sheet px-4 py-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-display text-sm w-max max-w-[95vw]">
+    <div className={`portfolio-toolbar safe-bottom fixed z-50 sheet font-display text-sm ${collapsed
+      ? 'is-collapsed'
+      : 'expanded bottom-4 left-1/2 -translate-x-1/2 px-3 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 max-w-[95vw]'
+    }`}>
+      <button
+        type="button"
+        onClick={() => setCollapsed((value) => !value)}
+        aria-expanded={!collapsed}
+        aria-label={collapsed ? 'Show drawing tools' : 'Hide drawing tools'}
+        title={collapsed ? 'Show drawing tools' : 'Hide drawing tools'}
+        className="toolbar-toggle min-h-9 min-w-9 flex items-center justify-center c-muted hover:text-[color:var(--ink)]"
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          {collapsed ? <path d="m3 10 5-5 5 5" /> : <path d="m3 6 5 5 5-5" />}
+        </svg>
+      </button>
+      {!collapsed && <>
       <div className="flex items-center gap-3" role="group" aria-label="Tools">
         {TOOLS.map((t) => (
           <button
@@ -387,9 +418,10 @@ function Toolbar({ tool, setTool, color, setColor, onUndo, onClear }) {
         ))}
       </div>
       <div className="flex items-center gap-3">
-        <button onClick={onUndo} className="c-muted hover:text-[color:var(--ink)]">Undo</button>
-        <button onClick={onClear} className="c-muted hover:text-[color:var(--ink)]">Clear</button>
+        <button onClick={onUndo} className="c-muted hover:text-[color:var(--ink)] min-h-9">Undo</button>
+        <button onClick={onClear} className="c-muted hover:text-[color:var(--ink)] min-h-9">Clear</button>
       </div>
+      </>}
     </div>
   );
 }
@@ -421,11 +453,13 @@ const Home = () => (
     </p>
     <p className="mb-5">
       I got into programming by making a very glitchy block-code game, then spent most of high school on a FIRST
-      robotics team, where I ran the programming subteam. Lately I've been reading about machine learning and unlearning.
-      I also spend time on programs I'll never use again, mostly because they're fun to write.
+      robotics team, where I ran the programming subteam. Lately I've been reading about machine unlearning, which
+      is the problem of making a trained model forget something. It's harder than it sounds.
     </p>
     <p className="mb-14">
-      Away from the keyboard I run, hike, read, and watch anime. Let me know if you have recommendations.
+      I also spend time on programs I'll never use again, mostly because they're fun to write. Away from the
+      keyboard I run, hike, read, and watch anime. I ran a marathon in 3:04:03, which got me fourth in the
+      under-20 division. Tell me what to watch next.
     </p>
     <h2 className="font-display text-2xl font-bold mb-4">Say hi</h2>
     <p className="mb-3">
@@ -695,7 +729,7 @@ export default function App() {
       if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return;
       buf = (buf + e.key.toLowerCase()).slice(-4);
       if (buf === 'sudo') {
-        setToast('you are not in the sudoers file. This incident will be reported.');
+        setToast('matthew is not in the sudoers file. This incident will be reported.');
         clearTimeout(t);
         t = setTimeout(() => setToast(''), 3500);
       }
@@ -751,35 +785,44 @@ export default function App() {
     }
   };
 
-  // The robot peeks after ten seconds, stays visible, then ducks back out after a short visit.
+  // Peek after ten seconds of inactivity. Once visible, stay visible until the user acts.
+  // Any new idle period can trigger another peek, even without changing pages.
   useEffect(() => {
     let peekTimer;
-    let hideTimer;
     let removeTimer;
-    const reset = () => {
+    let isVisible = false;
+    const clearTimers = () => {
       window.clearTimeout(peekTimer);
-      window.clearTimeout(hideTimer);
       window.clearTimeout(removeTimer);
-      setRobotPeeked(false);
-      if (idleRobot) {
-        hideTimer = window.setTimeout(() => setIdleRobot(false), 700);
-      }
+    };
+    const schedulePeek = () => {
+      window.clearTimeout(peekTimer);
       peekTimer = window.setTimeout(() => {
+        isVisible = true;
         setIdleRobot(true);
         setRobotPeeked(true);
-        hideTimer = window.setTimeout(() => {
-          setRobotPeeked(false);
-          removeTimer = window.setTimeout(() => setIdleRobot(false), 750);
-        }, 5000);
       }, 10000);
     };
+    const onActivity = () => {
+      clearTimers();
+      if (isVisible) {
+        setRobotPeeked(false);
+        removeTimer = window.setTimeout(() => {
+          setIdleRobot(false);
+          isVisible = false;
+        }, 750);
+      } else {
+        setIdleRobot(false);
+        setRobotPeeked(false);
+      }
+      schedulePeek();
+    };
+    schedulePeek();
     const events = ['mousemove', 'keydown', 'scroll', 'pointerdown', 'touchstart'];
-    events.forEach((event) => window.addEventListener(event, reset, { passive: true }));
+    events.forEach((event) => window.addEventListener(event, onActivity, { passive: true }));
     return () => {
-      window.clearTimeout(peekTimer);
-      window.clearTimeout(hideTimer);
-      window.clearTimeout(removeTimer);
-      events.forEach((event) => window.removeEventListener(event, reset));
+      clearTimers();
+      events.forEach((event) => window.removeEventListener(event, onActivity));
     };
   }, []);
 
@@ -854,11 +897,49 @@ export default function App() {
         .rm-output { animation: terminal-glitch 900ms steps(2, end) infinite; }
         .safe-bottom { padding-bottom: max(.75rem, env(safe-area-inset-bottom)); }
         .safe-top { padding-top: max(.75rem, env(safe-area-inset-top)); }
+        .portfolio-toolbar.expanded > .toolbar-toggle { order: 99; margin-left: auto; }
+        .portfolio-toolbar.is-collapsed {
+          right: max(1rem, env(safe-area-inset-right));
+          bottom: 0;
+          width: 44px;
+          height: 34px;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-bottom: 0;
+          border-radius: 12px 12px 0 0;
+          transform: none;
+        }
+        .portfolio-toolbar.is-collapsed .toolbar-toggle {
+          width: 44px;
+          height: 34px;
+          min-height: 34px;
+          min-width: 44px;
+        }
         .terminal-input { font-size: 16px; }
         @media (max-width: 640px) {
           .portfolio-nav { margin-bottom: 2.5rem; gap: .5rem 1rem; }
-          .portfolio-toolbar { bottom: max(.5rem, env(safe-area-inset-bottom)); max-height: 38dvh; overflow-y: auto; gap: .6rem 1rem; padding: .65rem .8rem; }
+          .portfolio-toolbar.expanded {
+            bottom: max(.5rem, env(safe-area-inset-bottom));
+            width: calc(100vw - 1rem); max-width: 95vw; box-sizing: border-box;
+            flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center;
+            max-height: 30dvh; overflow-y: auto; gap: .45rem .8rem;
+            padding: .6rem 2.8rem .6rem .65rem;
+          }
+          .portfolio-toolbar.expanded > .toolbar-toggle {
+            position: absolute; top: .25rem; right: .25rem;
+            width: 36px; min-width: 36px; height: 36px; min-height: 36px;
+          }
+          .portfolio-toolbar.expanded > div {
+            display: flex; flex-wrap: wrap; align-items: center;
+            justify-content: center; gap: .4rem .65rem; min-width: 0;
+          }
+          .portfolio-toolbar.expanded > div[role="group"] { flex: 0 1 auto; }
+          .portfolio-toolbar.expanded > div:last-of-type { flex: 0 0 auto; }
           .portfolio-toolbar button { min-height: 40px; }
+          .portfolio-toolbar.expanded button { padding-left: .15rem; padding-right: .15rem; }
+          .portfolio-toolbar.is-collapsed { width: 44px; max-width: 44px; height: 34px; padding: 0; }
           .terminal-panel { max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 1rem; }
           .resume-frame { height: 68dvh; min-height: 360px; }
         }
@@ -918,6 +999,7 @@ export default function App() {
             {terminalMode === 'rm' && (
               <div className="mt-4">
                 <div className="h-2 border border-[#557a50] overflow-hidden"><div className="rm-progress h-full bg-[#a8f0a0]" /></div>
+                <p className="mt-3">Simulated operation only — your files are safe.</p>
                 <button onClick={() => { setTerminalMode(''); setTerminalLines([]); }} className="mt-3 border border-[#557a50] px-3 py-1">Restore portfolio</button>
               </div>
             )}
