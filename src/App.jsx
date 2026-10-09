@@ -453,13 +453,11 @@ const Home = () => (
     </p>
     <p className="mb-5">
       I got into programming by making a very glitchy block-code game, then spent most of high school on a FIRST
-      robotics team, where I ran the programming subteam. Lately I've been reading about machine unlearning, which
-      is the problem of making a trained model forget something. It's harder than it sounds.
+      robotics team, where I ran the programming subteam. Lately I've been reading about machine learning and unlearning.
+      I also spend time on programs I'll never use again, mostly because they're fun to write.
     </p>
     <p className="mb-14">
-      I also spend time on programs I'll never use again, mostly because they're fun to write. Away from the
-      keyboard I run, hike, read, and watch anime. I ran a marathon in 3:04:03, which got me fourth in the
-      under-20 division. Tell me what to watch next.
+      Away from the keyboard I run, hike, read, and watch anime. Let me know if you have recommendations for what to watch next.
     </p>
     <h2 className="font-display text-2xl font-bold mb-4">Say hi</h2>
     <p className="mb-3">
