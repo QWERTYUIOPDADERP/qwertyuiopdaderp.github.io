@@ -58,11 +58,11 @@ const PROJECTS = [
   {
     name: 'Autonomous pathing',
     note: 'robot software',
-    stack: 'Java, sensors, vision',
+    stack: 'Java, PathPlanner',
     link: null,
     private: true,
-    body: "I worked on FRC autonomous routines using PathPlanner, combining authored trajectories with autonomous sequencing and path planning. Preplanned routes were a major part of the system: paths were designed and tuned ahead of time, then followed by the robot during a match.",
-    detail: 'I also worked on planning and integrating autonomous movement, plus driver-assist controls during my junior year. Those controls let the driver press a button to send the robot to a scoring position, automating the approach while keeping the driver in control of the overall play.'
+    body: 'Most of my autonomous work on the robot was preplanned routes. I designed and tuned the paths ahead of time in PathPlanner, and the robot followed them during the match.',
+    detail: 'My junior year I also worked on driver-assist controls. The driver presses a button and the robot drives itself to the scoring position, while the driver stays in control of the rest of the play.',
   },
 ];
 
@@ -96,7 +96,7 @@ function cursorFor(t, hex) {
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${half} ${half}, crosshair`;
 }
 
-const PAGES = ['Home', 'Projects', 'Experience', 'Resume', 'Leadership', 'Volunteering'];
+const PAGES = ['Home', 'Projects', 'Experience', 'Resume', 'Leadership', 'Volunteering', 'Awards'];
 const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 const CELL = 28;
 
@@ -172,6 +172,33 @@ function IdleRobot() {
         <circle cx="24" cy="48" r="10" fill="var(--paper)" />
         <circle cx="60" cy="48" r="10" fill="var(--paper)" />
       </svg>
+    </div>
+  );
+}
+
+// rm -rf /  (the real error, because that's the funny part)
+const RM_LINES = [
+  '$ rm -rf /',
+  "rm: it is dangerous to operate recursively on '/'",
+  'rm: use --no-preserve-root to override this failsafe',
+  '$ ',
+];
+
+function Terminal({ onDone }) {
+  const [n, setN] = useState(1);
+  useEffect(() => {
+    const more = n < RM_LINES.length;
+    const t = setTimeout(more ? () => setN(n + 1) : onDone, more ? 700 : 2500);
+    return () => clearTimeout(t);
+  }, [n]);
+  return (
+    <div onClick={onDone} className="fixed inset-0 bg-black text-[#d8d8d8] font-mono text-sm p-6" style={{ zIndex: 100 }}>
+      {RM_LINES.slice(0, n).map((l, i) => (
+        <p key={i}>
+          {l}
+          {i === n - 1 && <span className="animate-pulse">█</span>}
+        </p>
+      ))}
     </div>
   );
 }
@@ -443,6 +470,12 @@ const Entry = ({ when, title, children }) => (
   </li>
 );
 
+const Link = ({ to, children }) => (
+  <a href={`#${to}`} className="underline underline-offset-4 decoration-pen">
+    {children}
+  </a>
+);
+
 // ---- Pages ------------------------------------------------------------------
 const Home = () => (
   <>
@@ -460,19 +493,22 @@ const Home = () => (
       Away from the keyboard I run, hike, read, and watch anime. Let me know if you have recommendations for what to watch next.
     </p>
     <h2 className="font-display text-2xl font-bold mb-4">Say hi</h2>
-    <p className="mb-3">
-      <CopyEmail address={EMAIL} />
-    </p>
-    <p className="mb-3 c-muted">
-      For school stuff: <CopyEmail address={SCHOOL_EMAIL} />
-    </p>
-    <p>
-      My code is on{' '}
-      <a href={GITHUB} target="_blank" rel="noreferrer" className="underline underline-offset-4 decoration-pen">
-        GitHub
-      </a>
-      .
-    </p>
+    <dl className="grid grid-cols-[5.5rem_1fr] gap-y-2">
+      <dt className="c-muted">Personal</dt>
+      <dd>
+        <CopyEmail address={EMAIL} />
+      </dd>
+      <dt className="c-muted">School</dt>
+      <dd>
+        <CopyEmail address={SCHOOL_EMAIL} />
+      </dd>
+      <dt className="c-muted">Code</dt>
+      <dd>
+        <a href={GITHUB} target="_blank" rel="noreferrer" className="underline underline-offset-4 decoration-pen">
+          github.com/QWERTYUIOPDADERP
+        </a>
+      </dd>
+    </dl>
   </>
 );
 
@@ -516,32 +552,35 @@ const Experience = () => (
       <Entry when="Summer 2026, remote" title="Junior programmer, PreLicenseTraining">
         <p>
           PreLicenseTraining runs an online exam-prep platform for people studying for their insurance licenses. I
-          worked on the live site the summer after I graduated high school, putting in about 170 hours.
+          worked on the live site the summer after I graduated high school, about 170 hours in all.
         </p>
         <ul className="list-disc ml-5 space-y-2">
-          <li>Wrote backend features in PHP for the platform.</li>
+          <li>Wrote backend features in PHP.</li>
           <li>
-            Designed and built three interactive study games from scratch: a crossword, a true/false game, and a
-            trivia-show format. They give students something better to do than flip through flashcards.
+            Designed and built three study games from scratch: a crossword, a true/false game, and a trivia-show
+            format, so students have something better to do than flip through flashcards.
           </li>
-          <li>Ran QA testing across the site all summer. I found bugs, documented them, and fixed them.</li>
+          <li>Tested the site all summer. I found bugs, wrote them up, and fixed them.</li>
         </ul>
         <p className="text-sm c-muted">The code is private, but I'm glad to talk through any of it.</p>
       </Entry>
       <Entry when="2023 to 2025" title="Programming director, Buchanan Bird Brains (FRC 1671)">
         <p>
-          I ran the software side of an 80+ member competition robotics team, and built the tools our team
-          actually used at events:
+          I ran the software side of an 80+ member competition robotics team. While I was in charge, the team climbed
+          350+ places in the rankings and qualified for the FIRST World Championship two years in a row.
         </p>
         <ul className="list-disc ml-5 space-y-2">
-          <li>A match scheduler that builds fair schedules for 80+ people in under 15 seconds. It replaced a manual process.</li>
-          <li>Two scouting systems: an Android app that works offline through QR codes and syncs to Google Sheets, and later a cellular website with a field diagram for drawing robot paths. Together they were used at 13 competitions over four seasons, covering roughly 1,100 qualification matches.</li>
-          <li>Autonomous pathing and vision work on the robot itself. The team climbed 350+ places in the rankings and qualified for the FIRST World Championship two years in a row.</li>
+          <li>A match scheduler that builds fair schedules for 80+ people in under 15 seconds.</li>
+          <li>Two scouting systems, an offline Android app and then a cellular website, used at 13 competitions and roughly 1,100 qualification matches.</li>
+          <li>Autonomous routes and driver-assist controls for the robot.</li>
         </ul>
+        <p className="text-sm c-muted">
+          More on the <Link to="projects">Projects</Link> page.
+        </p>
       </Entry>
     </ul>
     <h2 className="font-display text-2xl font-bold mb-4">Education</h2>
-    <ul className="space-y-7 mb-14">
+    <ul className="space-y-7">
       <Entry when="Sept 2026 to now" title="B.S. Computer Science, UC San Diego">
         <p>This quarter: CSE 11 (intro to programming), CSE 20 (discrete math), MATH 18 (linear algebra), LIGN 5.</p>
       </Entry>
@@ -576,9 +615,11 @@ const NotFound = () => (
           <circle cx="24" cy="48" r="10" fill="var(--paper)" />
           <circle cx="60" cy="48" r="10" fill="var(--paper)" />
         </svg>
-        <p>This robot took a wrong turn. There’s nothing at this address.</p>
+        <p>This robot took a wrong turn. There's nothing at this address.</p>
       </div>
-      <p className="mt-4"><a href="#home" className="underline underline-offset-4 decoration-pen">Back home</a></p>
+      <p className="mt-4">
+        <Link to="home">Back home</Link>
+      </p>
     </div>
   </>
 );
@@ -586,11 +627,11 @@ const NotFound = () => (
 const Leadership = () => (
   <>
     <Title>Leadership</Title>
-    <ul className="space-y-7 mb-16">
+    <ul className="space-y-7">
       <Entry when="2024 to 2026" title="Leadership Council, Teens That Care">
         <p>
-          I was on the council for my junior and senior years. I started and led a seven-week summer camp for
-          at-risk kids, and weekly attendance grew to 30.
+          I served on the council for my junior and senior years. The summer camp I started there was my biggest
+          project, and it has its own entry on the <Link to="volunteering">Volunteering</Link> page.
         </p>
       </Entry>
       <Entry when="2025 to 2026" title="Administrative lead, Buchanan Bird Brains">
@@ -601,64 +642,76 @@ const Leadership = () => (
       </Entry>
       <Entry when="2023 to 2025" title="Programming director, Buchanan Bird Brains">
         <p>
-          I led a subteam of 4 to 11 programmers and wrote the onboarding curriculum. We went from 2
-          competition-ready programmers to 8 over two years, and qualified for the FIRST World Championship twice
-          in a row. After I moved to a new role, the subteam kept doing well without me, which was the goal.
+          I led a subteam of 4 to 11 programmers and wrote the onboarding curriculum, which took us from 2
+          competition-ready programmers to 8 over two years. After I moved into a new role, the subteam kept doing
+          well without me, which was the goal.
         </p>
       </Entry>
       <Entry when="2023" title="Vice president, Tutoring Club">
         <p>I organized peer tutoring and expanded it across multiple classes.</p>
       </Entry>
     </ul>
-    <h2 className="font-display text-2xl font-bold mb-4">Awards</h2>
-    <ul className="list-disc ml-5 space-y-1">
-      <li>FIRST Impact Award</li>
-      <li>FRC Regional Finalist (twice) and FRC Quality Award (twice)</li>
-      <li>Community Hero Award, top out of 145+ members</li>
-      <li>Mayoral Certificate of Recognition (twice)</li>
-      <li>Silver President's Volunteer Service Award and Silver National Service Honor Award</li>
-    </ul>
   </>
 );
 
 const Volunteering = () => (
   <>
-    <Title>
-      Volunteering
-    </Title>
+    <Title>Volunteering</Title>
     <ul className="space-y-7">
       <Entry title="Teens That Care" when="350+ hours">
         <p>
-          TTC is a student-run nonprofit that partners with local organizations and runs programs in underserved
-          communities. I helped serve meals at shelters and the Ronald McDonald House, supported adaptive sports,
-          and worked food drives and veteran-focused events. I earned the Silver President’s Volunteer Service Award
-          after contributing 175+ hours in one year.
+          TTC is a student-run nonprofit that partners with local organizations. I served meals at shelters and the
+          Ronald McDonald House, helped at adaptive sports events, and worked food drives and events for veterans. I
+          put in 175+ hours in a single year, which earned me the Silver President's Volunteer Service Award. The
+          next year I did the same and earned the Silver National Service Honor Award.
         </p>
         <p>
-          At Rescue the Children, I noticed the kids had few activities, so I organized and ran a seven-week summer
-          camp with crafts and games. Attendance grew to 30, and we ended with a trip to the Fresno Zoo. I still
-          remember one girl who avoided joining in for weeks, then drew a sun and trees on my nametag.
+          At Rescue the Children I noticed the kids didn't have many activities, so I started a seven-week summer
+          camp with crafts and games. Attendance grew to 30, and we finished with a trip to the Fresno Zoo. One girl
+          avoided joining in for weeks, then drew a sun and trees on my nametag. I still have it.
         </p>
       </Entry>
       <Entry title="Make-A-Wish" when="170+ hours">
         <p>
-          I planned and ran fundraising events with a group of other student volunteers. The money helped grant
-          three wishes for kids who are seriously ill.
+          I led a group of student volunteers in planning big local events, including registration, silent auctions,
+          and the finances. The money granted three wishes for children with critical illnesses.
         </p>
       </Entry>
       <Entry title="FIRST LEGO League" when="200+ hours">
         <p>
-          From 10th through 12th grade I coached two elementary robotics teams on programming, design basics, and
-          presentation skills. I also volunteered at FLL competitions, refereeing and judging six regional events,
-          where the judges talked through who should win each award. It's where my own robotics started, so it felt
-          good to hand it on.
+          From 10th through 12th grade I coached two elementary robotics teams on programming, design, and
+          presenting their work. I also refereed and judged six regional FLL competitions. It's where my own robotics
+          started, so it felt good to pass it on.
         </p>
       </Entry>
     </ul>
   </>
 );
 
-const COMPONENTS = { Home, Projects, Experience, Resume: ResumePage, Leadership, Volunteering, NotFound };
+const Awards = () => (
+  <>
+    <Title>Awards</Title>
+    <ul className="space-y-7">
+      <Entry title="Robotics">
+        <ul className="list-disc ml-5 space-y-1">
+          <li>FIRST Impact Award</li>
+          <li>FRC Regional Finalist, twice</li>
+          <li>FRC Quality Award, twice</li>
+        </ul>
+      </Entry>
+      <Entry title="Service">
+        <ul className="list-disc ml-5 space-y-1">
+          <li>Silver President's Volunteer Service Award, for 175+ hours in one year</li>
+          <li>Silver National Service Honor Award, for 175+ hours the next year</li>
+          <li>Community Hero Award, top out of 145+ members</li>
+          <li>Mayoral Certificate of Recognition, twice</li>
+        </ul>
+      </Entry>
+    </ul>
+  </>
+);
+
+const COMPONENTS = { Home, Projects, Experience, Resume: ResumePage, Leadership, Volunteering, Awards, NotFound };
 
 // ---- App --------------------------------------------------------------------
 export default function App() {
@@ -680,9 +733,8 @@ export default function App() {
     setVersion((v) => v + 1);
   };
   const [toast, setToast] = useState('');
-  const [terminalMode, setTerminalMode] = useState('');
-  const [terminalLines, setTerminalLines] = useState([]);
-  const [terminalInput, setTerminalInput] = useState('');
+  const [vim, setVim] = useState(false);
+  const [rm, setRm] = useState(false);
   const [idleRobot, setIdleRobot] = useState(false);
   const [robotPeeked, setRobotPeeked] = useState(false);
   const Page = COMPONENTS[page];
@@ -707,81 +759,38 @@ export default function App() {
   useEffect(() => {
     const onEsc = (e) => {
       if (e.key !== 'Escape') return;
-      if (terminalMode) {
-        setTerminalMode('');
-        setTerminalLines([]);
-        setTerminalInput('');
-      } else {
-        setTool(TOOLS[0]);
-      }
+      setRm(false);
+      setTool(TOOLS[0]);
     };
     window.addEventListener('keydown', onEsc);
     return () => window.removeEventListener('keydown', onEsc);
-  }, [terminalMode]);
+  }, []);
 
-  // Type "sudo" anywhere.
+  // Typed anywhere on the page: sudo, vim (then :q! to leave), rm -rf /
   useEffect(() => {
     let buf = '';
     let t;
     const onKey = (e) => {
       if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return;
-      buf = (buf + e.key.toLowerCase()).slice(-4);
-      if (buf === 'sudo') {
-        setToast('matthew is not in the sudoers file. This incident will be reported.');
+      buf = (buf + e.key.toLowerCase()).slice(-12);
+      if (buf.endsWith('sudo')) {
+        setToast('You are not in the sudoers file. This incident will be reported.');
         clearTimeout(t);
         t = setTimeout(() => setToast(''), 3500);
       }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
-
-  // Global typing shortcuts work even when the fake terminal is open.
-  useEffect(() => {
-    let buffer = '';
-    const onKey = (e) => {
-      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
-      buffer = (buffer + e.key.toLowerCase()).slice(-8);
-      if (buffer.endsWith('rm -rf /')) {
-        setTerminalMode('rm');
-        setTerminalInput('');
-        setTerminalLines(['$ rm -rf /']);
-        buffer = '';
-      } else if (buffer.endsWith('help')) {
-        setTerminalMode('terminal');
-        setTerminalInput('');
-        setTerminalLines([
-          '$ help',
-          'Available shortcuts:',
-          '  help      show this list',
-          '  rm -rf /  run the fake filesystem wipe + recovery sequence',
-          '  Konami    ↑ ↑ ↓ ↓ ← → ← → B A toggles blueprint mode',
-          '  sudo      print a permissions joke',
-          '',
-          'These are portfolio easter eggs. No system commands are executed.'
-        ]);
-        buffer = '';
+      if (buf.endsWith('vim')) setVim(true);
+      if (buf.endsWith(':q!')) setVim(false);
+      if (buf.endsWith('rm -rf /')) {
+        buf = '';
+        setRm(true);
       }
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('keydown', onKey);
+    };
   }, []);
-
-  const runTerminalCommand = (raw) => {
-    const command = raw.trim().toLowerCase();
-    setTerminalInput('');
-    if (command === 'help') {
-      setTerminalMode('terminal');
-      setTerminalLines(['$ help', 'Available shortcuts:', '  help      show this list', '  rm -rf /  fake filesystem wipe + recovery', '  Konami    ↑ ↑ ↓ ↓ ← → ← → B A toggles blueprint mode', '  sudo      permissions joke', '', 'No system commands are executed.']);
-    } else if (command === 'rm -rf /') {
-      setTerminalMode('rm');
-      setTerminalLines(['$ rm -rf /']);
-    } else if (command === 'clear') {
-      setTerminalLines([]);
-    } else {
-      setTerminalLines((lines) => [...lines, `$ ${raw}`, `bash: ${command || '(empty command)'}: command not found`, 'Tip: type help to see the easter eggs.']);
-    }
-  };
 
   // Peek after ten seconds of inactivity. Once visible, stay visible until the user acts.
   // Any new idle period can trigger another peek, even without changing pages.
@@ -825,7 +834,12 @@ export default function App() {
   }, []);
 
   // Tab title: one per page, and a different one when you switch away.
-  const baseTitle = page === 'Home' ? 'Matthew Castello | Computer Science, UC San Diego' : `${page} | Matthew Castello`;
+  const baseTitle =
+    page === 'Home'
+      ? 'Matthew Castello | Computer Science, UC San Diego'
+      : page === 'NotFound'
+      ? 'Wrong turn | Matthew Castello'
+      : `${page} | Matthew Castello`;
   const titleRef = useRef(baseTitle);
   titleRef.current = baseTitle;
   useEffect(() => {
@@ -861,8 +875,9 @@ export default function App() {
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Familjen+Grotesk:wght@500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
+        html { scrollbar-gutter: stable; }
         :root { --paper:#E8EDF1; --sheet:#F5F8FA; --ink:#14213D; --muted:#55627A; --pen:#B8322A; --red:#B8322A; --yellow:#E3A800; --blue:#2457C5; --green:#2E7D4F; --line:rgba(20,33,61,.08); --line-major:rgba(20,33,61,.17); --rule:rgba(20,33,61,.45); }
-        .blueprint { --paper:#1B3A6B; --sheet:#224783; --ink:#EAF2FF; --muted:#A9C0E6; --pen:#FFD166; --red:#FF8A80; --yellow:#FFD166; --ink-note:1; --blue:#8CC0FF; --green:#7CE3A6; --line:rgba(234,242,255,.1); --line-major:rgba(234,242,255,.22); --rule:rgba(234,242,255,.6); }
+        .blueprint { --paper:#1B3A6B; --sheet:#224783; --ink:#EAF2FF; --muted:#A9C0E6; --pen:#FFD166; --red:#FF8A80; --yellow:#FFD166; --blue:#8CC0FF; --green:#7CE3A6; --line:rgba(234,242,255,.1); --line-major:rgba(234,242,255,.22); --rule:rgba(234,242,255,.6); }
         .paper {
           font-family: 'Source Serif 4', Georgia, serif;
           color: var(--ink); background-color: var(--paper);
@@ -879,7 +894,8 @@ export default function App() {
         .axis { height: 14px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink);
           background: repeating-linear-gradient(90deg, transparent 0 ${CELL - 2}px, var(--ink) ${CELL - 2}px ${CELL}px) bottom / 100% 6px no-repeat; width: 100%; }
         .pen-note { font-family: 'Caveat', cursive; font-size: 1.35rem; color: var(--pen); transform: rotate(-2deg); display: inline-block; }
-        .circled { border: 2px solid var(--pen); border-radius: 55% 45% 50% 50% / 50% 55% 45% 50%; padding: 1px 12px; margin: -3px -12px; }
+        .circled { position: relative; color: var(--ink); }
+        .circled::after { content: ''; position: absolute; inset: -3px -12px; border: 2px solid var(--pen); border-radius: 55% 45% 50% 50% / 50% 55% 45% 50%; pointer-events: none; }
         .cursor-cell { position: fixed; left: 0; top: 0; width: ${CELL}px; height: ${CELL}px; background: var(--pen); opacity: 0; mix-blend-mode: multiply; pointer-events: none; z-index: 30; transition: transform 70ms linear, opacity 200ms; }
         .blueprint .cursor-cell { mix-blend-mode: screen; }
         .cursor-cell { filter: opacity(.16); }
@@ -892,9 +908,7 @@ export default function App() {
         @keyframes peek-out { from { transform: translateX(24px); } to { transform: translateX(84px); } }
         @keyframes drive { from { transform: translateX(-100px); } to { transform: translateX(calc(100vw + 20px)); } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .rm-output { animation: terminal-glitch 900ms steps(2, end) infinite; }
         .safe-bottom { padding-bottom: max(.75rem, env(safe-area-inset-bottom)); }
-        .safe-top { padding-top: max(.75rem, env(safe-area-inset-top)); }
         .portfolio-toolbar.expanded > .toolbar-toggle { order: 99; margin-left: auto; }
         .portfolio-toolbar.is-collapsed {
           right: max(1rem, env(safe-area-inset-right));
@@ -915,7 +929,6 @@ export default function App() {
           min-height: 34px;
           min-width: 44px;
         }
-        .terminal-input { font-size: 16px; }
         @media (max-width: 640px) {
           .portfolio-nav { margin-bottom: 2.5rem; gap: .5rem 1rem; }
           .portfolio-toolbar.expanded {
@@ -938,13 +951,9 @@ export default function App() {
           .portfolio-toolbar button { min-height: 40px; }
           .portfolio-toolbar.expanded button { padding-left: .15rem; padding-right: .15rem; }
           .portfolio-toolbar.is-collapsed { width: 44px; max-width: 44px; height: 34px; padding: 0; }
-          .terminal-panel { max-height: calc(100dvh - 2rem); overflow-y: auto; padding: 1rem; }
           .resume-frame { height: 68dvh; min-height: 360px; }
         }
         @media (hover: none) and (pointer: coarse) { .cursor-cell { display: none !important; } }
-        .rm-progress { width: 0; animation: rm-progress 4.8s steps(24, end) forwards; }
-        @keyframes rm-progress { to { width: 100%; } }
-        @keyframes terminal-glitch { 0%, 100% { opacity: 1; transform: translateX(0); } 25% { opacity: .7; transform: translateX(2px); } 50% { opacity: 1; transform: translateX(-1px); } 75% { opacity: .85; } }
         a:focus-visible, button:focus-visible, iframe:focus-visible { outline: 2px solid var(--pen); outline-offset: 3px; }
         @media (prefers-reduced-motion: reduce) { .robot-run { animation-duration: .01s; } .wheel { animation: none; } }
       `}</style>
@@ -958,7 +967,7 @@ export default function App() {
                 key={p}
                 href={`#${p.toLowerCase()}`}
                 aria-current={p === page ? 'page' : undefined}
-                className={p === page ? 'circled font-bold' : 'c-muted hover:text-[color:var(--ink)]'}
+                className={p === page ? 'circled' : 'c-muted hover:text-[color:var(--ink)]'}
               >
                 {p}
               </a>
@@ -974,36 +983,14 @@ export default function App() {
       <div ref={cell} className="cursor-cell" style={{ display: tool.kind === 'fill' ? 'block' : 'none', background: `var(--${color})` }} aria-hidden="true" />
       <Toolbar tool={tool} setTool={setTool} color={color} setColor={setColor} onUndo={undo} onClear={clear} />
       {toast && <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 sheet px-4 py-2 text-sm font-display">{toast}</div>}
-      {idleRobot && !terminalMode && <div className={`fixed right-0 bottom-6 z-40 pointer-events-none ${robotPeeked ? 'robot-peek' : 'robot-peek robot-peek-out'}`}><IdleRobot /></div>}
-      {terminalMode && (
-        <div className="safe-top safe-bottom fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-label="Terminal easter egg">
-          <div className="terminal-panel w-full max-w-2xl bg-[#101510] text-[#a8f0a0] border border-[#557a50] p-5 font-mono text-sm shadow-2xl">
-            <div className="flex justify-between items-center mb-4 border-b border-[#557a50] pb-2">
-              <span>{terminalMode === 'rm' ? 'root@portfolio: /' : 'matthew@portfolio:~'}</span>
-              <button onClick={() => { setTerminalMode(''); setTerminalLines([]); setTerminalInput(''); }} className="text-[#d0e8ca] underline min-h-9 px-2">close</button>
-            </div>
-            <pre className={`whitespace-pre-wrap leading-7 ${terminalMode === 'rm' ? 'rm-output' : ''}`}>{terminalLines.join('\n')}</pre>
-            {(terminalMode === 'terminal') && (
-              <form className="mt-3 flex gap-2 items-center" onSubmit={(e) => {
-                e.preventDefault();
-                runTerminalCommand(terminalInput);
-              }}>
-                <label className="sr-only" htmlFor="terminal-command">Terminal command</label>
-                <span aria-hidden="true">$</span>
-                <input id="terminal-command" autoFocus value={terminalInput} onChange={setTerminalInput} className="terminal-input min-w-0 flex-1 bg-transparent outline-none text-[#a8f0a0]" aria-label="Terminal command" placeholder="type help" />
-                <button type="submit" className="border border-[#557a50] px-3 py-1 min-h-9">Enter</button>
-              </form>
-            )}
-            {terminalMode === 'rm' && (
-              <div className="mt-4">
-                <div className="h-2 border border-[#557a50] overflow-hidden"><div className="rm-progress h-full bg-[#a8f0a0]" /></div>
-                <p className="mt-3">Simulated operation only — your files are safe.</p>
-                <button onClick={() => { setTerminalMode(''); setTerminalLines([]); }} className="mt-3 border border-[#557a50] px-3 py-1">Restore portfolio</button>
-              </div>
-            )}
-          </div>
+      {idleRobot && <div className={`fixed right-0 bottom-6 z-40 pointer-events-none ${robotPeeked ? 'robot-peek' : 'robot-peek robot-peek-out'}`}><IdleRobot /></div>}
+      {vim && (
+        <div className="fixed bottom-0 left-0 right-0 bg-[#1b1b1b] text-[#e6e6e6] font-mono text-sm px-3 py-1 flex justify-between" style={{ zIndex: 60 }}>
+          <span>-- INSERT --</span>
+          <span>You're stuck in vim. Try :q!</span>
         </div>
       )}
+      {rm && <Terminal onDone={() => setRm(false)} />}
       {blueprint && !done && <Robot key={run} onDone={() => setDone(true)} />}
     </>
   );
