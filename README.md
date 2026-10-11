@@ -1,8 +1,24 @@
-# React + Vite
+# Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+My personal site: https://qwertyuiopdaderp.github.io
 
-Currently, two official plugins are available:
+It's a React app that looks like graph paper. Each page is a hash route (#projects, #resume, and so on), so there's no router library. You can draw on the pages with the toolbar at the bottom.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+There are a few hidden secrets.
+
+## Running it
+
+    npm install
+    npm run dev
+
+`npm run build` makes the production version in `dist/`.
+
+## Stuff to know
+
+- Written in React with Vite and Tailwind.
+- Everything lives in `src/App.jsx`. I know it's a lot for one file, I'll split it up eventually.
+- Some of my projects are in private repos (mostly FRC and work stuff). The ones that are public are linked on the projects page.
+
+## Credits
+
+Fonts are Familjen Grotesk, Source Serif 4, and Caveat from Google Fonts.
