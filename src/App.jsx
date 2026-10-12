@@ -16,7 +16,7 @@ const PROJECTS = [
     name: 'Jarvis',
     note: 'local assistant',
     stack: 'Python, whisper.cpp, Ollama, Qwen3',
-    link: null,
+    link: 'https://github.com/QWERTYUIOPDADERP/jarvis-assistant',
     body: 'A voice and text assistant that runs on my own machine. You talk to it, whisper.cpp turns your speech into text, and a Qwen3 model running through Ollama decides what to do.',
     detail: "The hard part is that it can run shell commands, which is dangerous if the model gets something wrong. So every action sits in one of three tiers: read-only, logged, or needs my confirmation before it runs. That keeps the model useful without letting it touch things on its own.",
   },
