@@ -549,7 +549,7 @@ const Experience = () => (
     <Title>Experience</Title>
     <h2 className="font-display text-2xl font-bold mb-4">Work</h2>
     <ul className="space-y-7 mb-14">
-      <Entry when="Summer 2026, remote" title="Junior programmer, PreLicenseTraining">
+      <Entry when="April 2026 - September 2026, remote" title="Junior programmer, PreLicenseTraining">
         <p>
           PreLicenseTraining runs an online exam-prep platform for people studying for their insurance licenses. I
           worked on the live site the summer after I graduated high school, about 170 hours in all.
@@ -564,7 +564,7 @@ const Experience = () => (
         </ul>
         <p className="text-sm c-muted">The code is private, but I'm glad to talk through any of it.</p>
       </Entry>
-      <Entry when="2023 to 2025" title="Programming director, Buchanan Bird Brains (FRC 1671)">
+      <Entry when="Aug 2023 to June 2025" title="Programming director, Buchanan Bird Brains (FRC 1671)">
         <p>
           I ran the software side of an 80+ member competition robotics team. While I was in charge, the team climbed
           350+ places in the rankings and qualified for the FIRST World Championship two years in a row.
@@ -628,26 +628,26 @@ const Leadership = () => (
   <>
     <Title>Leadership</Title>
     <ul className="space-y-7">
-      <Entry when="2024 to 2026" title="Leadership Council, Teens That Care">
+      <Entry when="May 2024 to June 2026" title="Leadership Council, Teens That Care">
         <p>
           I served on the council for my junior and senior years. The summer camp I started there was my biggest
           project, and it has its own entry on the <Link to="volunteering">Volunteering</Link> page.
         </p>
       </Entry>
-      <Entry when="2025 to 2026" title="Administrative lead, Buchanan Bird Brains">
+      <Entry when="Aug 2025 to June 2026" title="Administrative lead, Buchanan Bird Brains">
         <p>
           I organized team events and outreach, and ran onboarding and leadership nominations for a team of 80+
           students.
         </p>
       </Entry>
-      <Entry when="2023 to 2025" title="Programming director, Buchanan Bird Brains">
+      <Entry when="Aug 2023 to June 2025" title="Programming director, Buchanan Bird Brains">
         <p>
           I led a subteam of 4 to 11 programmers and wrote the onboarding curriculum, which took us from 2
           competition-ready programmers to 8 over two years. After I moved into a new role, the subteam kept doing
           well without me, which was the goal.
         </p>
       </Entry>
-      <Entry when="2023" title="Vice president, Tutoring Club">
+      <Entry when="Aug - June 2023" title="Vice president, Tutoring Club">
         <p>I organized peer tutoring and expanded it across multiple classes.</p>
       </Entry>
     </ul>
